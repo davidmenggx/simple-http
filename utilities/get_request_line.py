@@ -1,8 +1,10 @@
+from exceptions import ParseError
+
 def get_request_line(request: str) -> tuple[tuple[str, str, str], list[str]]: # returns ((method, path, version), rest of text)
     request_line = request.split('\r\n')[0]
     
     if len(request_line.split()) != 3:
-        raise # figure out how to raise this because errors in threads are silent
+        raise ParseError
     
     method, path, protocol_version = request_line.split()
 

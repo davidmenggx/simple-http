@@ -1,8 +1,14 @@
-def get_headers(headers: list[str]) -> list[tuple[str, str]]:
-    res = []
+from exceptions import ParseError
+
+def get_headers(headers: list[str]) -> dict[str, str]:
+    res = {}
     
     for h in headers:
         header = h.split(': ')
-        res.append((header[0].lower(), header[1].lower()))
+
+        if len(header) != 2:
+            raise ParseError
+        
+        res[header[0].lower()] = header[1].lower()
     
     return res
