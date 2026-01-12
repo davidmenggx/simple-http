@@ -31,12 +31,16 @@ def handle_connection(connection: socket.socket) -> None:
                 break
             buffer.extend(chunk)
         
-        headers_raw, _, remaining = buffer.partition(header_delimiter)
-        headers = headers_raw.decode('utf-8')
+        head_raw, _, remaining_bytes = buffer.partition(header_delimiter) # partition returns (before, delimiter, after)
+        head = head_raw.decode('utf-8')
 
-        content_length = 0 # important, read this from the header
+        (method, path, protocol_version), remaining_head = get_request_line(head)
 
-        body = bytearray(remaining)
+        headers = get_headers(remaining_head)
+
+        content_length = 56 # important, read this from the headers
+
+        body = bytearray(remaining_bytes)
 
         while len(body) < content_length:
             bytes_to_read = content_length - len(body)
@@ -44,7 +48,6 @@ def handle_connection(connection: socket.socket) -> None:
             if not chunk:
                 break
             body.extend(chunk)
-
 
         # load the data into the buffer, up until the double crlf
         # then parse the buffer (after decoding to utf) and extract the request line and then headers
@@ -66,4 +69,6 @@ def main() -> None:
             connection_worker.start()
 
 if __name__ == '__main__':
+    print('Server started')
     main()
+    print('Server closed')
