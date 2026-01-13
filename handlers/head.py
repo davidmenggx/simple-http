@@ -5,7 +5,7 @@ from constants import responses, MIME_TYPES
 
 BASE_DIR = Path('public').resolve()
 
-def head(path: str, close_connection: bool = False) -> bytes:
+def head(path: str, headers: dict[str,str]) -> bytes:
     if path[0] == '/':
         path = path[1:]
 
@@ -17,12 +17,21 @@ def head(path: str, close_connection: bool = False) -> bytes:
                 with open(requested_path, 'rb') as f:
                     try:
                         content = f.read()
+
                         now = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
-                        content_type = MIME_TYPES.get(requested_path.suffix, 'application/octet-stream')
-                        if close_connection:
-                            response = (f'HTTP/1.1 200 OK\r\nDate: {now}\r\nConnection: Close\r\nContent-Length: {len(content)}\r\nContent-Type: {content_type}\r\n\r\n').encode('utf-8')
+
+                        response = (f'HTTP/1.1 200 OK\r\nDate: {now}\r\n')
+                        
+                        if headers.get('connection', '') == 'close':
+                            response += (f'Connection: Close\r\n')
                         else:
-                            response = (f'HTTP/1.1 200 OK\r\nDate: {now}\r\nConnection: Keep-Alive\r\nContent-Length: {len(content)}\r\nContent-Type: {content_type}\r\n\r\n').encode('utf-8')
+                            response += (f'Connection: Keep-Alive\r\n')
+                        
+                        content_type = MIME_TYPES.get(requested_path.suffix, 'application/octet-stream')
+                        response += (f'Content-Length: {len(content)}\r\nContent-Type: {content_type}\r\n\r\n')
+
+                        response = response.encode('utf-8')
+                        
                         return response
                     except:
                         return responses.internal_server_error()

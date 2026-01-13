@@ -14,7 +14,7 @@ RUNNING = True
 
 REQUIRED_HEADERS = ['host', 'content-length']
 KEEPALIVE_TIME = 5 # seconds
-DISPATCH_DICTIONARY = {'POST': get, 'HEAD': head}
+DISPATCH_DICTIONARY = {'GET': get, 'HEAD': head}
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -101,13 +101,11 @@ def handle_connection(connection: socket.socket) -> None:
                 actual_body = body[:content_length]
                 leftover_buffer = body[content_length:]
 
-                close_connection = headers.get('connection', '') == 'close'
-
-                response = DISPATCH_DICTIONARY[method](path, close_connection)
+                response = DISPATCH_DICTIONARY[method](path, headers)
 
                 s.sendall(response)
 
-                if close_connection:
+                if headers.get('connection', '') == 'close':
                     print('connection closed on request header')
                     break
             except (socket.timeout):
