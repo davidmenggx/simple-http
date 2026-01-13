@@ -2,6 +2,7 @@ import socket
 import threading
 import signal
 
+import responses
 from exceptions import ParseError
 from utilities import get_headers, get_request_line
 from handlers import get
@@ -59,27 +60,33 @@ def handle_connection(connection: socket.socket) -> None:
                     (method, path, protocol_version), remaining_head = get_request_line(head)
                 except ParseError:
                     print('parse error 1')
-                    break # sendall bad request
+                    s.sendall(responses.BAD_REQUEST)
+                    break 
 
                 if protocol_version != 'HTTP/1.1':
-                    break # sendall incorrect version 505
+                    s.sendall(responses.HTTP_VERSION_NOT_SUPPORTED)
+                    break 
 
                 if method not in DISPATCH_DICTIONARY.keys():
-                    break # sendall 405 method not allowed
+                    s.sendall(responses.NOT_IMPLEMENTED)
+                    break 
 
                 try:
                     headers = get_headers(remaining_head)
                 except ParseError:
-                    break # sendall bad request 
+                    s.sendall(responses.BAD_REQUEST)
+                    break
 
                 if not all(k in headers for k in REQUIRED_HEADERS):
-                    break #sendall bad request
+                    s.sendall(responses.BAD_REQUEST)
+                    break
 
                 try:
                     content_length = int(headers.get('content-length', 0)) # important, read this from the headers
                 except ValueError:
                     print('content length issue')
-                    break # sendall bad request
+                    s.sendall(responses.BAD_REQUEST)
+                    break
 
                 body = bytearray(remaining_bytes)
 
