@@ -17,8 +17,8 @@ def get(path: str) -> bytes:
                     content = f.read()
                     return content
             except FileNotFoundError:
-                return responses.NOT_FOUND
+                return responses.not_found()
         else:
-            return responses.NOT_FOUND
+            return responses.not_found()
     else:
-        return responses.FORBIDDEN
+        return responses.forbidden()

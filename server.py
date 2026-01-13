@@ -60,32 +60,32 @@ def handle_connection(connection: socket.socket) -> None:
                     (method, path, protocol_version), remaining_head = get_request_line(head)
                 except ParseError:
                     print('parse error 1')
-                    s.sendall(responses.BAD_REQUEST)
+                    s.sendall(responses.bad_request())
                     break 
 
                 if protocol_version != 'HTTP/1.1':
-                    s.sendall(responses.HTTP_VERSION_NOT_SUPPORTED)
+                    s.sendall(responses.http_version_not_supported())
                     break 
 
                 if method not in DISPATCH_DICTIONARY.keys():
-                    s.sendall(responses.NOT_IMPLEMENTED)
+                    s.sendall(responses.not_implemented())
                     break 
 
                 try:
                     headers = get_headers(remaining_head)
                 except ParseError:
-                    s.sendall(responses.BAD_REQUEST)
+                    s.sendall(responses.bad_request())
                     break
 
                 if not all(k in headers for k in REQUIRED_HEADERS):
-                    s.sendall(responses.BAD_REQUEST)
+                    s.sendall(responses.bad_request())
                     break
 
                 try:
                     content_length = int(headers.get('content-length', 0)) # important, read this from the headers
                 except ValueError:
                     print('content length issue')
-                    s.sendall(responses.BAD_REQUEST)
+                    s.sendall(responses.bad_request())
                     break
 
                 body = bytearray(remaining_bytes)
