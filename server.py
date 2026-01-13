@@ -4,6 +4,7 @@ import signal
 
 from exceptions import ParseError
 from utilities import get_headers, get_request_line
+from handlers import get
 
 HOST = '127.0.0.1'
 PORT = 1738
@@ -11,8 +12,8 @@ PORT = 1738
 RUNNING = True
 
 REQUIRED_HEADERS = ['host', 'content-length']
-KEEPALIVE_TIME = 100 # seconds
-DISPATCH_DICTIONARY = {'POST': 1}
+KEEPALIVE_TIME = 5 # seconds
+DISPATCH_DICTIONARY = {'POST': get}
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -93,7 +94,9 @@ def handle_connection(connection: socket.socket) -> None:
                 actual_body = body[:content_length]
                 leftover_buffer = body[content_length:]
 
-                print(actual_body.decode('utf-8'))
+                response = DISPATCH_DICTIONARY[method](path)
+
+                s.sendall(response)
 
                 if headers.get('connection', '') == 'close':
                     print('connection closed on request header')

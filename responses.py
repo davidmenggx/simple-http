@@ -1,0 +1,14 @@
+_BAD_REQUEST = 'HTTP/1.1 400 Bad Request'
+BAD_REQUEST = _BAD_REQUEST.encode('utf-8')
+
+_FORBIDDEN = 'HTTP/1.1 403 Forbidden'
+FORBIDDEN = _FORBIDDEN.encode('utf-8')
+
+_NOT_FOUND = 'HTTP/1.1 404 Not Found'
+NOT_FOUND = _NOT_FOUND.encode('utf-8')
+
+_INTERNAL_SERVER_ERROR = 'HTTP/1.1 500 Internal Server Error'
+INTERNAL_SERVER_ERROR = _INTERNAL_SERVER_ERROR.encode('utf-8')
+
+_NOT_IMPLEMENTED = 'HTTP/1.1 501 Not Implemented'
+NOT_IMPLEMENTED = _NOT_IMPLEMENTED.encode('utf-8')

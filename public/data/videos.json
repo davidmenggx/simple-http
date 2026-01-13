@@ -1,0 +1,41 @@
+{
+    "total_videos": 3,
+    "videos": [
+        {
+        "id": "v_101",
+        "title": "Viscacha",
+        "uploader_id": "u_98765",
+        "duration_seconds": 120,
+        "is_public": true,
+        "stats": {
+            "views": 1500,
+            "likes": 85
+        },
+        "created_at": "2026-01-10"
+        },
+        {
+        "id": "v_102",
+        "title": "Mountain Hike Vlog",
+        "uploader_id": "u_98766",
+        "duration_seconds": 450,
+        "is_public": true,
+        "stats": {
+            "views": 320,
+            "likes": 42
+        },
+        "created_at": "2026-01-12"
+        },
+        {
+        "id": "v_103",
+        "title": "I Love JSON",
+        "uploader_id": "u_98765",
+        "duration_seconds": 65,
+        "is_public": false,
+        "stats": {
+            "views": 0,
+            "likes": 0
+        },
+        "created_at": "2026-01-13"
+        }
+    ]
+}
