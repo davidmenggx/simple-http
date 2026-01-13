@@ -3,7 +3,7 @@
     "videos": [
         {
         "id": "v_101",
-        "title": "Viscacha",
+        "title": "Music Video",
         "uploader_id": "u_98765",
         "duration_seconds": 120,
         "is_public": true,
@@ -27,7 +27,7 @@
         },
         {
         "id": "v_103",
-        "title": "I Love JSON",
+        "title": "Food Review",
         "uploader_id": "u_98765",
         "duration_seconds": 65,
         "is_public": false,

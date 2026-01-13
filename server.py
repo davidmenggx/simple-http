@@ -2,7 +2,7 @@ import socket
 import threading
 import signal
 
-import responses
+from constants import responses
 from exceptions import ParseError
 from utilities import get_headers, get_request_line
 from handlers import get
@@ -101,11 +101,13 @@ def handle_connection(connection: socket.socket) -> None:
                 actual_body = body[:content_length]
                 leftover_buffer = body[content_length:]
 
-                response = DISPATCH_DICTIONARY[method](path)
+                close_connection = headers.get('connection', '') == 'close'
+
+                response = DISPATCH_DICTIONARY[method](path, close_connection)
 
                 s.sendall(response)
 
-                if headers.get('connection', '') == 'close':
+                if close_connection:
                     print('connection closed on request header')
                     break
             except (socket.timeout):
