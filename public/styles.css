@@ -1,0 +1,25 @@
+body {
+    background-color: #1a1a2e;
+    color: #e0e0e0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+h1 {
+    color: #4ecca3;
+    font-size: 3rem;
+    text-align: center;
+}
+
+a {
+    color: #e0e0e0;
+}
+
+.container {
+    text-align: center;
+    padding: 20px;
+}
