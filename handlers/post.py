@@ -26,7 +26,7 @@ def post(path: str, headers: dict[str, str], body: bytes = b'') -> bytes:
 
                             with open(requested_path, 'rb') as f:
                                 content = f.read()
-                            etag = get_etag(content)
+                            etag = get_etag(str(requested_path))
 
                             now = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
 

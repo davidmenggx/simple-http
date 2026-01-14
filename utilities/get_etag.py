@@ -1,6 +1,11 @@
+import os
 import hashlib
 
-def get_etag(content: bytes) -> str:
-    sha256_hash = hashlib.sha256()
-    sha256_hash.update(content)
-    return sha256_hash.hexdigest()
+def get_etag(requested_path: str) -> str:
+    try:
+        last_modified = os.stat(requested_path).st_mtime
+        sha256_hash = hashlib.sha256()
+        sha256_hash.update(str(last_modified).encode('utf-8'))
+        return sha256_hash.hexdigest()
+    except:
+        return ''

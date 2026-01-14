@@ -22,7 +22,7 @@ def head(path: str, headers: dict[str,str], body: bytes = b'') -> bytes:
                         
                         now = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
 
-                        current_etag = get_etag(content)
+                        current_etag = get_etag(str(requested_path))
                         user_etag = headers.get('if-none-match')
                         if user_etag and user_etag[1:-1] == current_etag:
                             return (f"HTTP/1.1 304 Not Modified\r\nDate: {now}\r\nServer: David's server\r\n\r\n").encode('utf-8')
