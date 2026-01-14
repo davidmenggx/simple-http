@@ -2,11 +2,12 @@ import hashlib
 from pathlib import Path
 from datetime import datetime, timezone
 
+from utilities import get_etag
 from constants import responses, MIME_TYPES
 
 BASE_DIR = Path('public').resolve()
 
-def get(path: str, headers: dict[str,str]) -> bytes:
+def get(path: str, headers: dict[str,str], body: bytes = b'') -> bytes:
     if path[0] == '/':
         path = path[1:]
 
@@ -21,12 +22,10 @@ def get(path: str, headers: dict[str,str]) -> bytes:
 
                         now = datetime.now(timezone.utc).strftime("%a, %d %b %Y %H:%M:%S GMT")
                         
-                        sha256_hash = hashlib.sha256()
-                        sha256_hash.update(content)
-                        current_etag = sha256_hash.hexdigest()
+                        current_etag = get_etag(content)
                         user_etag = headers.get('if-none-match')
                         if user_etag and user_etag[1:-1] == current_etag:
-                                return (f'HTTP/1.1 304 Not Modified\r\nDate: {now}\r\n').encode('utf-8')
+                            return (f'HTTP/1.1 304 Not Modified\r\nDate: {now}\r\n\r\n').encode('utf-8')
 
                         response = (f'HTTP/1.1 200 OK\r\nDate: {now}\r\n')
                         

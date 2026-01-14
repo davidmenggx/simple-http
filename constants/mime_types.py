@@ -5,5 +5,6 @@ MIME_TYPES = {
     '.json': 'application/json',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
+    '.txt': 'text/plain',
     
 }

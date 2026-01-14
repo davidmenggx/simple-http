@@ -4,8 +4,8 @@ import signal
 
 from constants import responses
 from exceptions import ParseError
+from handlers import get, head, post
 from utilities import get_headers, get_request_line
-from handlers import get, head
 
 HOST = '127.0.0.1'
 PORT = 1738
@@ -14,7 +14,7 @@ RUNNING = True
 
 REQUIRED_HEADERS = ['host', 'content-length']
 KEEPALIVE_TIME = 5 # seconds
-DISPATCH_DICTIONARY = {'GET': get, 'HEAD': head}
+DISPATCH_DICTIONARY = {'GET': get, 'HEAD': head, 'POST': post}
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -101,7 +101,7 @@ def handle_connection(connection: socket.socket) -> None:
                 actual_body = body[:content_length]
                 leftover_buffer = body[content_length:]
 
-                response = DISPATCH_DICTIONARY[method](path, headers)
+                response = DISPATCH_DICTIONARY[method](path, headers, actual_body)
 
                 s.sendall(response)
 
