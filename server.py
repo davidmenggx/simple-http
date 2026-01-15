@@ -1,19 +1,28 @@
-import socket
-import threading
 import signal
+import socket
+import argparse
+import threading
 
 from constants import responses
 from parse_error import ParseError
 from handlers import get, head, post, options
 from utilities import get_headers, get_request_line
 
+parser = argparse.ArgumentParser(description="Configs for simple HTTP server")
+parser.add_argument('--port', type=int, default=8080, help='Port for server to run on')
+parser.add_argument('--keepalive', type=int, default=5, help='Keepalive time in seconds for each connection')
+parser.add_argument('-v', '--verbose', action='store_true', default=False, help='Enable verbose mode for workers')
+args = parser.parse_args()
+
 HOST = '127.0.0.1'
-PORT = 1738
+PORT = args.port
+
+VERBOSE = args.verbose
 
 RUNNING = True
 
 REQUIRED_HEADERS = ['host']
-KEEPALIVE_TIME = 5 # seconds
+KEEPALIVE_TIME = args.keepalive
 DISPATCH_DICTIONARY = {'GET': get, 'HEAD': head, 'POST': post, 'OPTIONS': options}
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -42,6 +51,7 @@ def handle_connection(connection: socket.socket) -> None:
 
     Keeps connection alive, unless otherwise specified by client
     """
+    if VERBOSE: print('Thread started')
     connection.settimeout(KEEPALIVE_TIME)
     with connection as s:
         leftover_buffer = bytearray() # in case buffer contains part of two messages, split them up
@@ -54,10 +64,10 @@ def handle_connection(connection: socket.socket) -> None:
                     chunk = s.recv(1024)
                     if not chunk:
                         if not buffer:
-                            print(f'Connection closed cleanly by client')
+                            if VERBOSE: print('Connection closed cleanly by client')
                             break
                         else:
-                            print(f'Connection closed before client sent full header')
+                            if VERBOSE: print('Connection closed before client sent full header')
                             return
                     buffer.extend(chunk)
                 
@@ -70,30 +80,36 @@ def handle_connection(connection: socket.socket) -> None:
                 try:
                     (method, path, protocol_version), remaining_head = get_request_line(head)
                 except ParseError:
+                    if VERBOSE: print('Error parsing request line')
                     s.sendall(responses.bad_request())
                     break 
 
                 if protocol_version != 'HTTP/1.1':
+                    if VERBOSE: print('Incorrect HTTP version, must use HTTP/1.1')
                     s.sendall(responses.http_version_not_supported())
                     break
 
                 if method not in DISPATCH_DICTIONARY.keys(): # make sure that method is supported early
+                    if VERBOSE: print(f'Method {method} not supported')
                     s.sendall(responses.not_implemented())
                     break
 
                 try:
                     headers = get_headers(remaining_head)
                 except ParseError:
+                    if VERBOSE: print('Failed to parse headers')
                     s.sendall(responses.bad_request())
                     break
 
                 if not all(k in headers for k in REQUIRED_HEADERS): # check REQUIRED_HEADERS
+                    if VERBOSE: print(f'Not all required headers {REQUIRED_HEADERS} are present')
                     s.sendall(responses.bad_request())
                     break
 
                 try:
                     content_length = int(headers.get('content-length', 0)) # important, read this from the headers
                 except ValueError:
+                    if VERBOSE: print('Failed to fetch content length')
                     s.sendall(responses.bad_request())
                     break
 
@@ -103,6 +119,7 @@ def handle_connection(connection: socket.socket) -> None:
                     bytes_to_read = content_length - len(body)
                     chunk = s.recv(min(bytes_to_read, 4096))
                     if not chunk:
+                        if VERBOSE: print('Failed reading request body')
                         s.sendall(responses.internal_server_error())
                         return
                     body.extend(chunk)
@@ -115,12 +132,14 @@ def handle_connection(connection: socket.socket) -> None:
                 s.sendall(response)
 
                 if headers.get('connection', '') == 'close': # close connection if specified by client
+                    if VERBOSE: print('Connection closed by client, specified in header')
                     break
             except (socket.timeout):
                 break
             except ConnectionResetError:
                 s.sendall(responses.internal_server_error())
                 break
+    if VERBOSE: print('Thread closed')
 
 def main() -> None:
     """
@@ -130,6 +149,9 @@ def main() -> None:
 
     Spawns worker thread to handle request
     """
+
+    print(f'Listening on port {PORT}')
+
     with sock as s:
         s.bind((HOST, PORT))
         s.listen()
@@ -145,6 +167,5 @@ def main() -> None:
 
 if __name__ == '__main__':
     print('Server started')
-    print(f'Listening on port {PORT}')
     main()
     print('Server closed')
