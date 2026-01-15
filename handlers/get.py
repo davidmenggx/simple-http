@@ -49,7 +49,9 @@ def get(path: str, headers: dict[str,str], body: bytes = b'') -> bytes:
                 
                 current_etag = get_etag(str(requested_path))
                 user_etag = headers.get('if-none-match')
-                if user_etag and user_etag[1:-1] == current_etag:
+                if user_etag and user_etag[0] == '"' and user_etag[-1] == '"':
+                    user_etag = user_etag[1:-1]
+                if user_etag and user_etag == current_etag:
                     return (f"HTTP/1.1 304 Not Modified\r\nDate: {now}\r\nServer: David's server\r\n\r\n").encode('utf-8')
 
                 response = (f"HTTP/1.1 200 OK\r\nDate: {now}\r\nServer: David's server\r\n")

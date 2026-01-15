@@ -12,7 +12,7 @@ PORT = 1738
 
 RUNNING = True
 
-REQUIRED_HEADERS = ['host', 'content-length']
+REQUIRED_HEADERS = ['host']
 KEEPALIVE_TIME = 5 # seconds
 DISPATCH_DICTIONARY = {'GET': get, 'HEAD': head, 'POST': post, 'OPTIONS': options}
 
@@ -42,7 +42,6 @@ def handle_connection(connection: socket.socket) -> None:
 
     Keeps connection alive, unless otherwise specified by client
     """
-    print('thread started')
     connection.settimeout(KEEPALIVE_TIME)
     with connection as s:
         leftover_buffer = bytearray() # in case buffer contains part of two messages, split them up
@@ -56,11 +55,9 @@ def handle_connection(connection: socket.socket) -> None:
                     if not chunk:
                         if not buffer:
                             print(f'Connection closed cleanly by client')
-                            # maybe send a response here too
                             break
                         else:
                             print(f'Connection closed before client sent full header')
-                            # error here
                             return
                     buffer.extend(chunk)
                 
@@ -73,13 +70,12 @@ def handle_connection(connection: socket.socket) -> None:
                 try:
                     (method, path, protocol_version), remaining_head = get_request_line(head)
                 except ParseError:
-                    print('parse error 1')
                     s.sendall(responses.bad_request())
                     break 
 
                 if protocol_version != 'HTTP/1.1':
                     s.sendall(responses.http_version_not_supported())
-                    break 
+                    break
 
                 if method not in DISPATCH_DICTIONARY.keys(): # make sure that method is supported early
                     s.sendall(responses.not_implemented())
@@ -98,7 +94,6 @@ def handle_connection(connection: socket.socket) -> None:
                 try:
                     content_length = int(headers.get('content-length', 0)) # important, read this from the headers
                 except ValueError:
-                    print('content length issue')
                     s.sendall(responses.bad_request())
                     break
 
@@ -108,8 +103,8 @@ def handle_connection(connection: socket.socket) -> None:
                     bytes_to_read = content_length - len(body)
                     chunk = s.recv(min(bytes_to_read, 4096))
                     if not chunk:
-                        print('Connection lost while reading body')
-                        return # send failure back ?, maybe internal server error ?
+                        s.sendall(responses.internal_server_error())
+                        return
                     body.extend(chunk)
                 
                 actual_body = body[:content_length]
@@ -120,15 +115,12 @@ def handle_connection(connection: socket.socket) -> None:
                 s.sendall(response)
 
                 if headers.get('connection', '') == 'close': # close connection if specified by client
-                    print('connection closed on request header')
                     break
             except (socket.timeout):
-                print(f'connection closed cleanly - idle for {KEEPALIVE_TIME}s')
                 break
             except ConnectionResetError:
-                print('error: connection forcefully shut down')
+                s.sendall(responses.internal_server_error())
                 break
-    print('thread shut down')
 
 def main() -> None:
     """
@@ -153,5 +145,6 @@ def main() -> None:
 
 if __name__ == '__main__':
     print('Server started')
+    print(f'Listening on port {PORT}')
     main()
     print('Server closed')
