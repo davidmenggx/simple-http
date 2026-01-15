@@ -1,4 +1,4 @@
-# simple_http
+# simple-http
 Multi-threaded HTTP server built using only the Python standard library
 ## Features
 - HTTP/1.1 subset
@@ -15,7 +15,7 @@ Multi-threaded HTTP server built using only the Python standard library
 With Python 3.x
 1. **Clone this repository:**
 ```bash
-git clone https://github.com/davidmenggx/simple_http && cd simple_http
+git clone https://github.com/davidmenggx/simple-http && cd simple-http
 ```
 2. **Run the server:**
 ```bash
@@ -58,5 +58,6 @@ Now read `api/public_file.txt`:
 ```bash
 curl -i http://localhost:8080/api/public_file.txt
 ```
+
 
 
