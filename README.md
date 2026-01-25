@@ -1,5 +1,6 @@
 # simple-http
-Multi-threaded HTTP server built using only the Python standard library
+Multi-threaded HTTP server built using only the Python standard library<br><br>
+*Server instances compatible with [reverse proxy](https://github.com/davidmenggx/multiplexed-reverse-proxy) (work in progress)*
 ## Features
 - HTTP/1.1 subset
 - Serves Static Files: Delivers HTML, CSS, JS, image, json, txt, and other data formats
@@ -58,6 +59,7 @@ Now read `api/public_file.txt`:
 ```bash
 curl -i http://localhost:8080/api/public_file.txt
 ```
+
 
 
 
