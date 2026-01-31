@@ -1,6 +1,6 @@
 # simple-http
 Multi-threaded HTTP server built using only the Python standard library<br><br>
-*Server instances compatible with [reverse proxy](https://github.com/davidmenggx/multiplexed-reverse-proxy) (work in progress)*
+*Server instances compatible with [reverse proxy](https://github.com/davidmenggx/multiplexed-reverse-proxy)*
 ## Features
 - HTTP/1.1 subset
 - Serves Static Files: Delivers HTML, CSS, JS, image, json, txt, and other data formats
@@ -65,3 +65,4 @@ Using Locust*, one server instance was able to achieve up to *2500 RPS*, *40 ms 
 *Running on a Dockerized environment on my laptop (8-core Intel Ultra 7 with 32 GB of RAM on Windows 11)<br><br>
 **For reference, without persistent connections I am only able to achieve 1000 RPS<br><br>
 ![Locust performance profile](assets/baseline_rps.png)
+
